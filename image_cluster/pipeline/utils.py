@@ -1,3 +1,5 @@
+import math
+
 from tqdm import tqdm
 
 
@@ -16,3 +18,7 @@ class VerboseMixin(object):
 class NoFitMixin(object):
     def fit(self, X, y=None, *args, **kwargs):
         return self
+
+
+def optimal_clusters(n_samples: int) -> int:
+    return 60 + 12 * math.log10(n_samples // 100)

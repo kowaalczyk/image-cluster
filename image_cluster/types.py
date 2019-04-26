@@ -41,7 +41,7 @@ class ClusterData(object):
 @dataclass
 class Score(object):
     silhouette_score: float
-    calinski_harabas_score: float
+    calinski_harabaz_score: float
     n_samples: int
     n_clusters: int
     n_outliers: int

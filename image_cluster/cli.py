@@ -10,6 +10,9 @@ from image_cluster.pipeline import (
     MetadataReader,
     GreyscaleImageReader,
     IOUImageVectorizer,
+    ShapeVectorizer,
+    TextDensityVectorizer,
+    FeatureUnion,
     MinMaxScaler,
     AgglomerativeClustering,
     Converter
@@ -28,20 +31,29 @@ def main():
 )
 @click.option("-i", "--input-file", type=Path, required=True)
 @click.option("-o", "--output-dir", type=Path)
+@click.option("-n", "--n-clusters", type=int)
 @click.option("--html/--no-html", default=True)
 @click.option("--verbose/--silent", default=True)
 @click.option("--score/--no-score", default=True)
-def cluster_images(input_file, output_dir, html, verbose, score):
+def cluster_images(input_file, output_dir, n_clusters, html, verbose, score):
     transformer = SklearnPipeline([
         ('meta', MetadataReader()),
         ('image', GreyscaleImageReader(verbose=verbose)),
-        ('vectorizer', IOUImageVectorizer(filter_shape=(3, 3), verbose=verbose)),
-        ('scaler', MinMaxScaler())
+        ('vectorizer', FeatureUnion([
+            ('iou', IOUImageVectorizer(filter_shape=(3, 3), verbose=verbose)),
+            ('shape', ShapeVectorizer(verbose=verbose)),
+            ('density', TextDensityVectorizer(verbose=verbose))
+        ])),
+        ('scaler', MinMaxScaler()),
     ])
-    model = AgglomerativeClustering(n_clusters=30)
+    model = AgglomerativeClustering(
+        n_clusters=n_clusters,
+        affinity='euclidean',
+        linkage='ward'
+    )
     pipeline = Pipeline(transformer, model, verbose=verbose).fit(
         input_file
-    )
+    )  # TODO: Get rid of Pipeline class, add automatic cluster number selection
     clusters = Converter(verbose=verbose).fit_transform(
         transformer.named_steps['image'].images_,
         pipeline.predict()

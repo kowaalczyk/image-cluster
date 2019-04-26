@@ -9,6 +9,7 @@ from image_cluster.types import ClusterData
 
 class Writer(object):
     def __init__(self, output_dir: Path, html: bool):
+        output_dir = output_dir.resolve()
         if not output_dir.exists():
             os.makedirs(output_dir)
         self.writers = [TxtWriter(output_dir / 'clusters.txt')]

@@ -89,7 +89,34 @@ class IOUImageVectorizer(BaseImageVectorizer):
         return vector
 
 
-class ShapeVectorizer(BaseEstimator, TransformerMixin, NoFitMixin):
-    def transform(self, image_data: ImageData):
-        img = image_data.img
-        return np.array(img.shape)
+class BaseFeatureGenerator(
+        BaseEstimator,
+        TransformerMixin,
+        NoFitMixin,
+        VerboseMixin
+):
+    def __init__(self, verbose: bool = False):
+        self.verbose = verbose
+
+    def transform(self, image_data: Iterable[ImageData]):
+        self.features_ = np.array([
+            self.compute_feature(img)
+            for img in self._progress(image_data)
+        ]).reshape(len(image_data), -1)
+        return self.features_
+
+    def compute_feature(self, image_data: ImageData) -> ImageData:
+        raise NotImplementedError()
+
+
+class ShapeVectorizer(BaseFeatureGenerator):
+    def compute_feature(self, image_data):
+        return image_data.image.shape
+
+
+class TextDensityVectorizer(BaseFeatureGenerator):
+    def compute_feature(self, image_data):
+        img = image_data.image
+        return np.sum(img, axis=(0, 1)) / (
+            img.shape[0] * img.shape[1]
+        )

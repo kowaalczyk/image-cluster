@@ -44,7 +44,7 @@ class Pipeline(BaseEstimator, ClusterMixin, VerboseMixin):
                 self.preprocessed_,
                 self.labels_
             ),
-            calinski_harabas_score=calinski_harabaz_score(
+            calinski_harabaz_score=calinski_harabaz_score(
                 self.preprocessed_,
                 self.labels_
             ),

@@ -1,3 +1,4 @@
+from .utils import optimal_clusters
 from .pipeline import Pipeline
 from .reader import (
     MetadataReader,
@@ -7,7 +8,8 @@ from .reader import (
 from .vectorizer import (
     FilterImageVectorizer,
     IOUImageVectorizer,
-    ShapeVectorizer
+    ShapeVectorizer,
+    TextDensityVectorizer
 )
 from .converter import Converter
 
@@ -17,7 +19,10 @@ from sklearn.preprocessing import (
     Normalizer
 )
 from sklearn.decomposition import PCA
-from sklearn.pipeline import Pipeline as SklearnPipeline
+from sklearn.pipeline import (
+    Pipeline as SklearnPipeline,
+    FeatureUnion
+)
 from sklearn.cluster import (
     KMeans,
     AgglomerativeClustering,

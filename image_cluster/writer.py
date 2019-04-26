@@ -4,7 +4,7 @@ from typing import Iterable
 
 from tqdm import tqdm
 
-from image_cluster.data.types import ClusterData
+from image_cluster.types import ClusterData
 
 
 class Writer(object):

@@ -4,12 +4,17 @@ import random
 
 import click
 
-from image_cluster.data import Reader, Writer
-from image_cluster.clustering import (
+from image_cluster.pipeline import (
     Pipeline,
-    vectorizer_factory,
-    clusterizer_factory
+    SklearnPipeline,
+    MetadataReader,
+    GreyscaleImageReader,
+    IOUImageVectorizer,
+    MinMaxScaler,
+    AgglomerativeClustering,
+    Converter
 )
+from image_cluster.writer import Writer  # TODO: Move to pipeline
 
 
 @click.group(name='image_cluster')
@@ -24,12 +29,25 @@ def main():
 @click.option("-i", "--input-file", type=Path, required=True)
 @click.option("-o", "--output-dir", type=Path)
 @click.option("--html/--no-html", default=True)
-def cluster_images(input_file, output_dir, html):
-    reader = Reader(input_file)
-    vectorizer = vectorizer_factory()
-    clustering_pipeline = Pipeline(reader, vectorizer)
-    clusterizer = clusterizer_factory(len(reader))
-    clusters = clustering_pipeline.process(clusterizer)
+@click.option("--verbose/--silent", default=True)
+@click.option("--score/--no-score", default=True)
+def cluster_images(input_file, output_dir, html, verbose, score):
+    transformer = SklearnPipeline([
+        ('meta', MetadataReader()),
+        ('image', GreyscaleImageReader(verbose=verbose)),
+        ('vectorizer', IOUImageVectorizer(filter_shape=(3, 3), verbose=verbose)),
+        ('scaler', MinMaxScaler())
+    ])
+    model = AgglomerativeClustering(n_clusters=30)
+    pipeline = Pipeline(transformer, model, verbose=verbose).fit(
+        input_file
+    )
+    clusters = Converter(verbose=verbose).fit_transform(
+        transformer.named_steps['image'].images_,
+        pipeline.predict()
+    )
+    if score:
+        pipeline.score()
     if output_dir is not None:
         writer = Writer(output_dir, html)
         writer.write(clusters)

@@ -20,7 +20,7 @@ def main():
 
 
 @main.command(name="cluster")
-@click.option("-i", "--input-file", type=Path, required=True)
+@click.argument("input_file", type=Path, required=True)
 @click.option(
     "-o", "--output-dir", type=Path,
     help="Unless provided, output will be lost.")

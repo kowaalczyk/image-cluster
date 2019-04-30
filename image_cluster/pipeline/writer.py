@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import Iterable
 
@@ -14,8 +13,7 @@ class Writer(BaseEstimator, TransformerMixin, VerboseMixin, NoFitMixin):
     """
     def __init__(self, output_dir: Path, html: bool, verbose: bool = False):
         output_dir = output_dir.resolve()
-        if not output_dir.exists():
-            os.makedirs(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
         self.writers = [TxtWriter(
             output_dir / 'clusters.txt',
             verbose=verbose
@@ -41,13 +39,13 @@ class TxtWriter(VerboseMixin):
 
     def _format(self, cluster: ClusterData) -> str:
         return " ".join(
-            [img.name for img in cluster.images]
+            [str(img.name) for img in cluster.images]
         )
 
     def transform(self, clusters: Iterable[ClusterData]):
         with open(self.output_file, 'w') as f:
             f.writelines([
-                self._format(cluster)
+                self._format(cluster) + "\n"
                 for cluster in self._progress(clusters)
             ])
 

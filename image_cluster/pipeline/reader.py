@@ -36,7 +36,7 @@ class MetadataReader(BaseEstimator, TransformerMixin, NoFitMixin):
     def parse_meta_line(self, line: str) -> ImageData:
         img_path = Path(line.strip())
         return ImageData(
-            img_path.stem,
+            img_path.name,
             img_path.resolve()
         )
 

@@ -21,4 +21,11 @@ class NoFitMixin(object):
 
 
 def optimal_clusters(n_samples: int) -> int:
-    return 60 + 12 * math.log10(n_samples // 100)
+    """
+    Returns optimal number of clusters for the given number of samples
+    (uneven distribution of character images results in fewer image classes
+    being present in the smaller sample, preventing fixed number of clusters
+    to yield desired results)
+    The formula was developed via empirical trial-and-error tesing.
+    """
+    return 60 + int(12 * math.log10(n_samples // 100))

@@ -13,7 +13,8 @@ class MetadataReader(BaseEstimator, TransformerMixin, NoFitMixin):
     """
     Reads metadata, yielding ImageData.
     Metadata path can be specified either
-    during construction or during transform.
+    during construction or during transform,
+    for easier experimenting.
     """
     def __init__(self, meta_path: Union[str, Path] = None):
         self._store_meta(meta_path)
@@ -52,7 +53,10 @@ class BaseImageReader(
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
 
-    def transform(self, image_data: Iterable[ImageData]) -> Iterable[ImageData]:
+    def transform(
+            self,
+            image_data: Iterable[ImageData]
+    ) -> Iterable[ImageData]:
         self.images_ = [
             self.strategy(img)
             for img in self._progress(image_data)
